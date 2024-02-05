@@ -14,7 +14,9 @@ import glob
 
 
 def usage():
-
+    print ("###  parse_resfinder.py  ###")
+    print ("###  script to parse resfinder  ###")
+    print ("###  parse_resfinder.py <resfinder fasta> <path to dir with counts> <resfinder clusters> <res db> <yields> ###")
     sys.exit()
 
 def get_opts():
@@ -44,9 +46,8 @@ def read_counts(count_file_dir):
     read_counts = {}
     for name in glob.glob(count_file_dir+"/*.txt"):
         temp = name.split("/")
-        temp2 = temp[4].split(".")
-        temp3 = temp2[0].split("_")
-        samp = temp3[0]
+        temp2 = temp[len(temp)-1].split(".")
+        samp = temp2[0]
 
         inhandle = open(name,'r')
         for line in inhandle.readlines():
@@ -64,7 +65,7 @@ def read_res_db(res_db):
     class_names = []
     for name in glob.glob(res_db+"/*.fsa"):   
         temp = name.split("/")
-        temp2 = temp[4].split(".")
+        temp2 = temp[len(temp)-1].split(".")
         class_name = temp2[0]
         class_names.append(class_name)
         inhandle = open(name,'r')
@@ -97,8 +98,11 @@ def convert_to_fpkm(read_counts, gene_c, yield_c):
     for sample in read_counts:
         fpkm_counts[sample] = {}
         for hit in read_counts[sample]:
-            fpkm = (float(read_counts[sample][hit]) * 1000000000) / (int(yield_c[sample]) * int(gene_c[hit]))
-            fpkm_counts[sample][hit] = fpkm
+            try:
+                fpkm = (float(read_counts[sample][hit]) * 1000000000) / (int(yield_c[sample]) * int(gene_c[hit]))
+                fpkm_counts[sample][hit] = fpkm
+            except:
+                print ("No yield for %s" % (sample,))
     return fpkm_counts        
 
 def read_yield(list_file):
@@ -143,7 +147,7 @@ def print_fpkm_table(cluster_counts):
     df = pd.DataFrame(cluster_counts)
     df = df.loc[~(df==0.0).all(axis=1)]
     #df.to_csv(r'resfinder_fkpm.tsv', sep='\t')
-    df.to_csv(r'resfinder_fpkm_prot.tsv', sep='\t')
+    df.to_csv(r'resfinder_fpkm_class.tsv', sep='\t')
 
 
 def rename_clusters(cluster_map, class_map):
@@ -154,29 +158,41 @@ def rename_clusters(cluster_map, class_map):
             new_cluster_map[name] = cluster_map[cluster]
 
     return new_cluster_map
+
+
+
 ###### MAIN ###
  
 gene_file, count_file_dir, clust_file, res_db, yields = get_opts()
 
 gene_c = read_genes(gene_file)
 
+
 read_counts = read_counts(count_file_dir)
+
 
 class_map, classes = read_res_db(res_db)
 
+
 cluster_map = read_clusters(clust_file)
+
 
 cluster_map = rename_clusters(cluster_map, class_map)
 
+
+
 yield_c = read_yield(yields)
+
+
 
 fpkm_counts = convert_to_fpkm(read_counts, gene_c, yield_c)
 
+
 #fpkm_counts = read_counts
 
-cluster_counts = aggregate_to_clusters(fpkm_counts, cluster_map)
+#cluster_counts = aggregate_to_clusters(fpkm_counts, cluster_map)
 
-#cluster_counts = aggregate_to_class(fpkm_counts, class_map, classes)
+cluster_counts = aggregate_to_class(fpkm_counts, class_map, classes)
 
 print_fpkm_table(cluster_counts)
 

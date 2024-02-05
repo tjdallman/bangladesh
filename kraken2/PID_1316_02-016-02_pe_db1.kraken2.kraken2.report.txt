@@ -1,0 +1,16 @@
+ 54.55	6	6	U	0	unclassified
+ 45.45	5	0	R	1	root
+ 45.45	5	0	R1	131567	  cellular organisms
+ 45.45	5	1	D	2	    Bacteria
+ 27.27	3	0	P	1224	      Pseudomonadota
+ 27.27	3	0	C	1236	        Gammaproteobacteria
+ 27.27	3	0	O	91347	          Enterobacterales
+ 27.27	3	2	F	543	            Enterobacteriaceae
+  9.09	1	0	G	561	              Escherichia
+  9.09	1	1	S	562	                Escherichia coli
+  9.09	1	0	D1	1783272	      Terrabacteria group
+  9.09	1	0	P	1239	        Bacillota
+  9.09	1	0	C	186801	          Clostridia
+  9.09	1	0	O	186802	            Eubacteriales
+  9.09	1	0	F	3018741	              Cellulosilyticaceae
+  9.09	1	1	G	698776	                Cellulosilyticum
